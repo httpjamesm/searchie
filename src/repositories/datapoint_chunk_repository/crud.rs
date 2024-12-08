@@ -1,7 +1,11 @@
 use super::DatapointChunkRepository;
-use crate::models::datapoint::{DatapointChunk, DatapointChunkWithDatapoint};
+use crate::models::datapoint::{
+    Datapoint, DatapointChunk, DatapointChunkWithDatapoint, DatapointMetadata,
+    DatapointWithMetadata,
+};
 use anyhow::Result;
-use sqlx::{query, query_as};
+use serde_json::{self, Value};
+use sqlx::{query, query_as, Row};
 
 impl DatapointChunkRepository {
     pub async fn create(&self, datapoint_id: i64, data: &Vec<u8>) -> Result<i64> {
@@ -48,29 +52,63 @@ impl DatapointChunkRepository {
         let placeholders = vec!["?"].repeat(ids.len()).join(",");
         let query = format!(
             r#"
-    SELECT 
-        dc.id, dc.datapoint_id, dc.data as "chunk_data", dc.created_at,
-        d.id as "datapoint_id", 
-        d.dataset_id as "dataset_id",
-        d.data_type as "data_type",
-        d.name as "name",
-        d.data as "data",
-        d.created_at as "created_at",
-        d.indexed_at as "indexed_at"
-    FROM datapoint_chunks dc
-    JOIN datapoints d ON dc.datapoint_id = d.id
-    WHERE dc.id IN ({})
-    "#,
+        SELECT 
+            dc.id, dc.datapoint_id, dc.data as chunk_data, dc.created_at,
+            d.id as d_id, d.dataset_id, d.data_type, d.name, d.data, d.created_at as d_created_at, d.indexed_at,
+            dm.id as dm_id, dm.datapoint_id as dm_datapoint_id, dm.key as dm_key, dm.value as dm_value, dm.created_at as dm_created_at
+        FROM datapoint_chunks dc
+        JOIN datapoints d ON dc.datapoint_id = d.id
+        LEFT JOIN datapoint_metadata dm ON d.id = dm.datapoint_id
+        WHERE dc.id IN ({})
+        "#,
             placeholders
         );
 
-        let mut query = sqlx::query_as::<_, DatapointChunkWithDatapoint>(&query);
-
+        let mut query = sqlx::query(&query);
         for id in ids {
             query = query.bind(id);
         }
 
-        let results = query.fetch_all(&*self.pool).await?;
-        Ok(results)
+        let rows = query.fetch_all(&*self.pool).await?;
+
+        let mut chunks_map: std::collections::HashMap<i64, DatapointChunkWithDatapoint> =
+            std::collections::HashMap::new();
+
+        for row in rows {
+            let chunk_id: i64 = row.get("id");
+
+            let chunk = chunks_map
+                .entry(chunk_id)
+                .or_insert_with(|| DatapointChunkWithDatapoint {
+                    id: row.get("id"),
+                    datapoint_id: row.get("datapoint_id"),
+                    data: row.get("chunk_data"),
+                    created_at: row.get("created_at"),
+                    datapoint: DatapointWithMetadata {
+                        datapoint: Datapoint {
+                            id: row.get("d_id"),
+                            dataset_id: row.get("dataset_id"),
+                            data_type: row.get("data_type"),
+                            name: row.get("name"),
+                            data: row.get("data"),
+                            created_at: row.get("d_created_at"),
+                            indexed_at: row.get("indexed_at"),
+                        },
+                        metadata: Vec::new(),
+                    },
+                });
+
+            if let Ok(metadata_id) = row.try_get::<i64, _>("dm_id") {
+                chunk.datapoint.metadata.push(DatapointMetadata {
+                    id: metadata_id,
+                    datapoint_id: row.get("dm_datapoint_id"),
+                    key: row.get("dm_key"),
+                    value: row.get("dm_value"),
+                    created_at: row.get("dm_created_at"),
+                });
+            }
+        }
+
+        Ok(chunks_map.into_values().collect())
     }
 }

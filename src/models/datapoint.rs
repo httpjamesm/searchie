@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use sqlx::FromRow;
 
 #[derive(sqlx::Type, Serialize, Deserialize)]
 #[sqlx(type_name = "data_point_type", rename_all = "lowercase")]
@@ -41,7 +42,14 @@ pub struct Datapoint {
     pub indexed_at: Option<NaiveDateTime>,
 }
 
-#[derive(sqlx::FromRow)]
+#[derive(sqlx::FromRow, Serialize, Deserialize)]
+pub struct DatapointWithMetadata {
+    #[sqlx(flatten)]
+    pub datapoint: Datapoint,
+    pub metadata: Vec<DatapointMetadata>,
+}
+
+#[derive(sqlx::FromRow, Serialize, Deserialize, Clone)]
 pub struct DatapointMetadata {
     pub id: i64,
     pub datapoint_id: i64,
@@ -60,16 +68,14 @@ pub struct DatapointChunk {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Serialize, Deserialize)]
 pub struct DatapointChunkWithDatapoint {
     pub id: i64,
     pub datapoint_id: i64,
     #[serde(serialize_with = "serialize_bytes_to_string")]
-    #[sqlx(rename = "chunk_data")]
     pub data: Vec<u8>,
     pub created_at: NaiveDateTime,
-    #[sqlx(flatten)]
-    pub datapoint: Datapoint,
+    pub datapoint: DatapointWithMetadata,
 }
 
 fn serialize_bytes_to_string<S>(bytes: &Vec<u8>, serializer: S) -> Result<S::Ok, S::Error>

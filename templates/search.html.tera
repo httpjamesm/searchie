@@ -36,13 +36,9 @@
             <div class="space-y-4">
                 {% for result in results %}
                 <div class="bg-white p-4 rounded-lg shadow">
+                    <strong>{{ result.datapoint.name }}</strong>
                     <p class="text-gray-800 whitespace-pre-wrap">{{ result.data }}</p>
-                    {# <p class="text-gray-600">{{ result.description }}</p>
-                    {% if result.metadata %}
-                    <div class="mt-2 text-sm text-gray-500">
-                        {{ result.metadata }}
-                    </div>
-                    {% endif %} #}
+
                 </div>
                 {% endfor %}
             </div>
