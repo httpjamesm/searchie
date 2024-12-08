@@ -8,7 +8,7 @@ use handlers::{
     datapoint_handler::{create_datapoint::create_datapoint, DatapointHandler},
     dataset_handler::{create_dataset::create_dataset, DatasetHandler},
 };
-use poem::{listener::TcpListener, post, Route, Server};
+use poem::{listener::TcpListener, post, EndpointExt, Route, Server};
 use repositories::{
     datapoint_chunk_repository::DatapointChunkRepository,
     datapoint_metadata_repository::DatapointMetadataRepository,
@@ -56,12 +56,14 @@ async fn main() -> Result<()> {
     let dataset_controller = Arc::new(DatasetController::new(dataset_repository.clone()));
 
     // handlers
-    let datapoint_handler = DatapointHandler::new(datapoint_controller.clone());
-    let dataset_handler = DatasetHandler::new(dataset_controller.clone());
+    let datapoint_handler = Arc::new(DatapointHandler::new(datapoint_controller.clone()));
+    let dataset_handler = Arc::new(DatasetHandler::new(dataset_controller.clone()));
 
     let app = Route::new()
         .at("/datasets", post(create_dataset))
-        .at("/datapoints", post(create_datapoint));
+        .at("/datapoints", post(create_datapoint))
+        .data(datapoint_handler)
+        .data(dataset_handler);
 
     println!("😼 Listening on {}", listen);
 
