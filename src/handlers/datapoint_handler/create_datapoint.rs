@@ -17,7 +17,7 @@ pub struct CreateDatapointRequest {
 #[derive(Deserialize)]
 pub struct CreateDatapointPayload {
     data_type: String,
-    name: String,
+    name: Option<String>,
     data: String,
     metadata: Option<HashMap<String, String>>,
 }
@@ -26,14 +26,14 @@ pub struct CreateDatapointPayload {
 pub async fn create_datapoint(
     datapoint_handler: Data<&Arc<DatapointHandler>>,
     Json(payload): Json<CreateDatapointRequest>,
-) -> Response {
+) -> impl IntoResponse {
     for datapoint in payload.datapoints {
         if let Err(e) = datapoint_handler
             .datapoint_controller
             .create_datapoint(
                 &payload.dataset_id,
                 &datapoint.data_type,
-                &datapoint.name,
+                datapoint.name.as_deref(),
                 &datapoint.data.as_bytes().to_vec(),
                 datapoint.metadata,
             )

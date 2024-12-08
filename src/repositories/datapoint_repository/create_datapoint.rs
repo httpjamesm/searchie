@@ -9,7 +9,7 @@ impl DatapointRepository {
         &self,
         dataset_id: &str,
         data_type: DataPointType,
-        name: &str,
+        name: Option<&str>,
         data: &Vec<u8>,
     ) -> Result<i64> {
         let created_at = Utc::now();

@@ -35,7 +35,7 @@ pub struct Datapoint {
     pub id: i64,
     pub dataset_id: String,
     pub data_type: DataPointType,
-    pub name: String,
+    pub name: Option<String>,
     // we're storing the data as a blob to allow for future flexibility
     pub data: Vec<u8>,
     pub created_at: NaiveDateTime,

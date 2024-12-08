@@ -1,5 +1,4 @@
 use anyhow::Result;
-use serde::{Deserialize, Serialize};
 use tokenizers::Tokenizer;
 
 pub struct Chunk {
@@ -8,7 +7,7 @@ pub struct Chunk {
 }
 
 pub fn chunk_text(
-    title: &str,
+    name: Option<&str>,
     text: &str,
     max_tokens: usize,
     overlap_tokens: usize,
@@ -26,8 +25,11 @@ pub fn chunk_text(
     let mut is_overlap = Vec::new();
 
     for paragraph in paragraphs {
-        let chunk_with_title = format!("Title: {}\n{}", title, paragraph);
-        let tokens = tokenizer.encode(chunk_with_title, false).unwrap();
+        let chunk_with_name = match name {
+            Some(name) => format!("{} - {}", name, paragraph),
+            None => paragraph.to_string(),
+        };
+        let tokens = tokenizer.encode(chunk_with_name, false).unwrap();
         let token_count = tokens.get_ids().len();
 
         if current_total_tokens + token_count <= max_tokens {
@@ -37,7 +39,11 @@ pub fn chunk_text(
             current_total_tokens += token_count;
         } else {
             if !current_chunk.is_empty() {
-                let full_chunk = format!("Title: {}\n{}", title, current_chunk.join("\n"));
+                // include name if it exists
+                let full_chunk = match name {
+                    Some(name) => format!("{} - {}", name, current_chunk.join("\n")),
+                    None => current_chunk.join("\n"),
+                };
                 chunks.push(full_chunk);
             }
 
@@ -61,7 +67,10 @@ pub fn chunk_text(
     }
 
     if !current_chunk.is_empty() {
-        let final_chunk = format!("Title: {}\n{}", title, current_chunk.join("\n"));
+        let final_chunk = match name {
+            Some(name) => format!("{} - {}", name, current_chunk.join("\n")),
+            None => current_chunk.join("\n"),
+        };
         chunks.push(final_chunk);
     }
 

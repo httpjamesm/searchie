@@ -9,7 +9,7 @@ impl DatapointController {
         &self,
         dataset_id: &str,
         data_type: &str,
-        name: &str,
+        name: Option<&str>,
         data: &Vec<u8>,
         metadata: Option<HashMap<String, String>>,
     ) -> Result<()> {
@@ -42,7 +42,7 @@ impl DatapointController {
             .await?;
 
         let chunks = chunk_text(
-            &datapoint.name,
+            datapoint.name.as_deref(),
             &String::from_utf8(datapoint.data)?,
             1000,
             100,
