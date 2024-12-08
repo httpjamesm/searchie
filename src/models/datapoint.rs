@@ -3,7 +3,7 @@ use chrono::NaiveDateTime;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use sqlx::FromRow;
 
-#[derive(sqlx::Type, Serialize, Deserialize)]
+#[derive(sqlx::Type, Serialize, Deserialize, Clone)]
 #[sqlx(type_name = "data_point_type", rename_all = "lowercase")]
 pub enum DataPointType {
     Text,
@@ -30,7 +30,7 @@ impl From<String> for DataPointType {
     }
 }
 
-#[derive(sqlx::FromRow, Serialize, Deserialize)]
+#[derive(sqlx::FromRow, Serialize, Deserialize, Clone)]
 pub struct Datapoint {
     pub id: i64,
     pub dataset_id: String,
@@ -42,7 +42,7 @@ pub struct Datapoint {
     pub indexed_at: Option<NaiveDateTime>,
 }
 
-#[derive(sqlx::FromRow, Serialize, Deserialize)]
+#[derive(sqlx::FromRow, Serialize, Deserialize, Clone)]
 pub struct DatapointWithMetadata {
     #[sqlx(flatten)]
     #[serde(flatten)]
@@ -69,7 +69,7 @@ pub struct DatapointChunk {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct DatapointChunkWithDatapoint {
     pub id: i64,
     pub datapoint_id: i64,
@@ -77,6 +77,12 @@ pub struct DatapointChunkWithDatapoint {
     pub data: Vec<u8>,
     pub created_at: NaiveDateTime,
     pub datapoint: DatapointWithMetadata,
+}
+
+impl DatapointChunkWithDatapoint {
+    pub fn text(&self) -> Result<String> {
+        String::from_utf8(self.data.clone()).map_err(|_| anyhow!("Invalid UTF-8 data"))
+    }
 }
 
 fn serialize_bytes_to_string<S>(bytes: &Vec<u8>, serializer: S) -> Result<S::Ok, S::Error>

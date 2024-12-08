@@ -16,7 +16,10 @@ use repositories::{
     datapoint_metadata_repository::DatapointMetadataRepository,
     datapoint_repository::DatapointRepository,
     dataset_repository::DatasetRepository,
-    services::embeddings::{EmbeddingsService, OllamaEmbeddingsService},
+    services::{
+        embeddings::{EmbeddingsService, OllamaEmbeddingsService},
+        reranking::{FastEmbedRerankingService, RerankingService},
+    },
 };
 use small_world_rs::{
     distance_metric::{CosineDistance, DistanceMetric},
@@ -61,6 +64,9 @@ async fn main() -> Result<()> {
     let tokenizer_path = "./tokenizer.json";
     let ollama_embeddings_service =
         Arc::new(Box::new(OllamaEmbeddingsService::new()) as Box<dyn EmbeddingsService>);
+    let fastembed_reranking_service = Arc::new(Box::new(FastEmbedRerankingService::new(
+        "./.fastembed",
+    )) as Box<dyn RerankingService>);
 
     // repositories
     let datapoint_repository = Arc::new(DatapointRepository::new(pool.clone()));
@@ -105,6 +111,7 @@ async fn main() -> Result<()> {
         worlds.clone(),
         ollama_embeddings_service.clone(),
         datapoint_chunk_repository.clone(),
+        fastembed_reranking_service.clone(),
     ));
 
     // handlers

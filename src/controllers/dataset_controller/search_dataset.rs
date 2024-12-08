@@ -27,6 +27,19 @@ impl DatasetController {
             .get_by_ids(results.iter().map(|r| *r as i64).collect())
             .await?;
 
-        Ok(datapoint_chunks)
+        let datapoint_chunk_text_strings: Vec<String> = datapoint_chunks
+            .iter()
+            .map(|chunk| chunk.text())
+            .collect::<Result<_>>()?;
+
+        let reranked = self
+            .reranking_service
+            .rerank(query, datapoint_chunk_text_strings)
+            .await?;
+
+        Ok(reranked
+            .iter()
+            .map(|r| datapoint_chunks[*r].clone())
+            .collect())
     }
 }
