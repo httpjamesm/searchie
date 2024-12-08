@@ -38,7 +38,12 @@
                 <div class="bg-white p-4 rounded-lg shadow">
                     <strong>{{ result.datapoint.name }}</strong>
                     <p class="text-gray-800 whitespace-pre-wrap">{{ result.data }}</p>
-
+                    <details>
+                        <summary>Metadata</summary>
+                        {% for metadata in result.datapoint.metadata %}
+                        <p>{{ metadata.key }}: {{ metadata.value }}</p>
+                        {% endfor %}
+                    </details>
                 </div>
                 {% endfor %}
             </div>

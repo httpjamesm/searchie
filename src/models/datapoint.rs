@@ -45,6 +45,7 @@ pub struct Datapoint {
 #[derive(sqlx::FromRow, Serialize, Deserialize)]
 pub struct DatapointWithMetadata {
     #[sqlx(flatten)]
+    #[serde(flatten)]
     pub datapoint: Datapoint,
     pub metadata: Vec<DatapointMetadata>,
 }
