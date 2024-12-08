@@ -1,0 +1,18 @@
+[package]
+name = "searchie"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.94"
+chrono = "0.4.38"
+colored = "2.1.0"
+fastembed = "4.3.0"
+ollama-rs = "0.2.1"
+poem = "3.1.5"
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = "1.0.133"
+small-world-rs = "1.1.1"
+sqlx = { version = "0.8.2", features = ["sqlite"] }
+tokenizers = "0.21.0"
+walkdir = "2.5.0"
