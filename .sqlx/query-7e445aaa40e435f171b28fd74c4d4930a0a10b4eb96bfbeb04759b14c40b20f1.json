@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM datapoint_chunks WHERE datapoint_id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "7e445aaa40e435f171b28fd74c4d4930a0a10b4eb96bfbeb04759b14c40b20f1"
+}

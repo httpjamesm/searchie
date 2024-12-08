@@ -4,5 +4,5 @@ CREATE TABLE datapoint_metadata (
     datapoint_id INTEGER NOT NULL REFERENCES datapoints(id),
     key TEXT NOT NULL,
     value TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

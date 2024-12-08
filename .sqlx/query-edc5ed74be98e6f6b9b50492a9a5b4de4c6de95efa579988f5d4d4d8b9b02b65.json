@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO datapoint_chunks (datapoint_id, data) VALUES (?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "edc5ed74be98e6f6b9b50492a9a5b4de4c6de95efa579988f5d4d4d8b9b02b65"
+}

@@ -1,8 +1,7 @@
 -- Add up migration script here
-CREATE TABLE datapoints (
+CREATE TABLE datapoint_chunks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    dataset_id TEXT NOT NULL REFERENCES datasets(id),
-    data_type TEXT NOT NULL,
+    datapoint_id INTEGER NOT NULL,
     data BLOB NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

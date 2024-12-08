@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO datapoint_metadata (datapoint_id, key, value) VALUES (?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "709452e0a4abb77abce5d0be45166f4571b3769781abe2d70ed852451c66f999"
+}

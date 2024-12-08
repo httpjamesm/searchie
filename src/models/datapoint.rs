@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use chrono::{DateTime, Utc};
+use chrono::NaiveDateTime;
 
 pub enum DataPointType {
     Text,
@@ -21,21 +21,35 @@ impl DataPointType {
     }
 }
 
+impl From<String> for DataPointType {
+    fn from(value: String) -> Self {
+        DataPointType::from_str(&value).unwrap()
+    }
+}
+
 #[derive(sqlx::FromRow)]
 pub struct Datapoint {
-    pub id: u32,
+    pub id: i64,
     pub dataset_id: String,
     pub data_type: DataPointType,
     // we're storing the data as a blob to allow for future flexibility
     pub data: Vec<u8>,
-    pub created_at: DateTime<Utc>,
+    pub created_at: NaiveDateTime,
+    pub indexed_at: Option<NaiveDateTime>,
 }
 
 #[derive(sqlx::FromRow)]
 pub struct DatapointMetadata {
-    pub id: u32,
-    pub datapoint_id: u32,
+    pub id: i64,
+    pub datapoint_id: i64,
     pub key: String,
     pub value: String,
-    pub created_at: DateTime<Utc>,
+    pub created_at: NaiveDateTime,
+}
+#[derive(sqlx::FromRow)]
+pub struct DatapointChunk {
+    pub id: i64,
+    pub datapoint_id: i64,
+    pub data: Vec<u8>,
+    pub created_at: NaiveDateTime,
 }
