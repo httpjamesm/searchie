@@ -49,6 +49,9 @@ impl DatapointController {
                 .create(datapoint_id, &chunk.as_bytes().to_vec())
                 .await?;
         }
+
+        // update the datapoint to be indexed
+        self.datapoint_repository.set_indexed(datapoint_id).await?;
         Ok(())
     }
 }
