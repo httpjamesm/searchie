@@ -5,9 +5,11 @@ use controllers::{
 use handlers::{
     datapoint_handler::{create_datapoint::create_datapoint, DatapointHandler},
     dataset_handler::{
-        create_dataset::create_dataset, search_dataset::search_dataset, DatasetHandler,
+        create_dataset::create_dataset, search_dataset::search_dataset, search_page::search_page,
+        DatasetHandler,
     },
 };
+use once_cell::sync::Lazy;
 use poem::{get, listener::TcpListener, post, EndpointExt, Route, Server};
 use repositories::{
     datapoint_chunk_repository::DatapointChunkRepository,
@@ -22,6 +24,7 @@ use small_world_rs::{
 };
 use sqlx::sqlite::SqlitePoolOptions;
 use std::{collections::HashMap, sync::Arc};
+use tera::Tera;
 use tokio::sync::Mutex;
 
 mod controllers;
@@ -29,6 +32,18 @@ mod handlers;
 mod models;
 mod repositories;
 mod utils;
+
+static TEMPLATES: Lazy<Tera> = Lazy::new(|| {
+    let mut tera = match Tera::new("templates/**/*") {
+        Ok(t) => t,
+        Err(e) => {
+            println!("Parsing error(s): {e}");
+            ::std::process::exit(1);
+        }
+    };
+    tera.autoescape_on(vec![".html.tera"]);
+    tera
+});
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -97,9 +112,14 @@ async fn main() -> Result<()> {
     let dataset_handler = Arc::new(DatasetHandler::new(dataset_controller.clone()));
 
     let app = Route::new()
-        .at("/datasets", post(create_dataset))
-        .at("/datasets/:id/search", get(search_dataset))
-        .at("/datapoints", post(create_datapoint))
+        .nest(
+            "/api",
+            Route::new()
+                .at("/datasets", post(create_dataset))
+                .at("/datasets/:id/search", get(search_dataset))
+                .at("/datapoints", post(create_datapoint)),
+        )
+        .at("/:id/search", get(search_page))
         .data(datapoint_handler)
         .data(dataset_handler);
 
