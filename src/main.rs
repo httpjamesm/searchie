@@ -3,6 +3,7 @@ use poem::{listener::TcpListener, Route, Server};
 use sqlx::sqlite::SqlitePoolOptions;
 
 mod controllers;
+mod handlers;
 mod models;
 mod repositories;
 mod utils;

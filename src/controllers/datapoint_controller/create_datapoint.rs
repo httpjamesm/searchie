@@ -8,6 +8,7 @@ impl DatapointController {
         &self,
         dataset_id: &str,
         data_type: &str,
+        name: &str,
         data: &Vec<u8>,
         metadata: Option<HashMap<String, String>>,
     ) -> Result<()> {
@@ -16,6 +17,7 @@ impl DatapointController {
             .create_datapoint(
                 dataset_id,
                 DataPointType::from_str(data_type).unwrap(),
+                name,
                 data,
             )
             .await?;

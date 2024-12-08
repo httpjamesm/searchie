@@ -9,14 +9,16 @@ impl DatapointRepository {
         &self,
         dataset_id: &str,
         data_type: DataPointType,
+        name: &str,
         data: &Vec<u8>,
     ) -> Result<i64> {
         let created_at = Utc::now();
         let data_type = data_type.to_string();
         let id = query!(
-            "INSERT INTO datapoints (dataset_id, data_type, data, created_at) VALUES (?, ?, ?, ?)",
+            "INSERT INTO datapoints (dataset_id, data_type, name, data, created_at) VALUES (?, ?, ?, ?, ?)",
             dataset_id,
             data_type,
+            name,
             data,
             created_at,
         )
