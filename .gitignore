@@ -1,3 +1,4 @@
 /target
 *.db*
 tokenizer.json
+indices/

@@ -26,9 +26,9 @@ pub struct CreateDatapointPayload {
 pub async fn create_datapoint(
     datapoint_handler: Data<&Arc<DatapointHandler>>,
     Json(payload): Json<CreateDatapointRequest>,
-) -> impl IntoResponse {
+) -> Response {
     for datapoint in payload.datapoints {
-        match datapoint_handler
+        if let Err(e) = datapoint_handler
             .datapoint_controller
             .create_datapoint(
                 &payload.dataset_id,
@@ -39,12 +39,9 @@ pub async fn create_datapoint(
             )
             .await
         {
-            Ok(_) => {}
-            Err(e) => {
-                return Response::builder()
-                    .status(StatusCode::INTERNAL_SERVER_ERROR)
-                    .body(e.to_string())
-            }
+            return Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(e.to_string());
         }
     }
     Response::builder().status(StatusCode::CREATED).body(())
