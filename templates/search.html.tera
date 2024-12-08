@@ -6,50 +6,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Index | Searchie</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <style>
+        details>summary {
+            list-style: none;
+        }
+
+        details>summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <div class="max-w-2xl mx-auto">
-            <h1 class="text-4xl font-bold text-center mb-8 text-gray-500">
-                {% if title %}
-                {{ title }}
-                {% else %}
-                Searchie
-                {% endif %}
-            </h1>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen font-['Inter']">
+    <div class="container mx-auto px-4 {% if not query %}h-screen flex flex-col{% else %}py-12{% endif %}">
+        <div class="max-w-3xl mx-auto {% if not query %}flex-1 flex flex-col justify-center{% endif %}">
+            <a href="/{{ dataset_id }}/search" class="text-decoration-none">
+                <h1
+                    class="text-5xl font-bold text-center mb-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text font-['Merriweather']">
+                    {% if title %}
+                    {{ title }}
+                    {% else %}
+                    Searchie
+                    {% endif %}
+                </h1>
+            </a>
+            <div class="text-center mb-12">
+                <span class="text-gray-600 text-lg font-medium">{{ dataset_name }}</span>
+            </div>
 
-            <form method="GET" action="/{{ dataset_id }}/search" class="mb-8">
-                <div class="flex gap-2">
-                    <input type="text" name="q" value="{{ query | default(value='') }}"
-                        placeholder="Enter your search query..."
-                        class="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        value="{{ query | default(value='') }}">
+            <form method="GET" action="/{{ dataset_id }}/search" class="mb-12">
+                <div class="flex gap-3 {% if not query %}max-w-2xl mx-auto{% endif %}">
+                    <div class="flex-1 relative">
+                        <input type="text" name="q" value="{{ query | default(value='') }}"
+                            placeholder="Enter your search query..."
+                            class="w-full px-6 py-4 rounded-xl border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg transition-all">
+                    </div>
                     <button type="submit"
-                        class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        class="px-8 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm hover:shadow-md font-medium text-lg">
                         Search
                     </button>
                 </div>
             </form>
 
             {% if results %}
-            <div class="space-y-4">
+            <div class="space-y-6">
                 {% for result in results %}
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <strong>{{ result.datapoint.name }}</strong>
-                    <p class="text-gray-800 whitespace-pre-wrap">{{ result.data }}</p>
-                    <details>
-                        <summary>Metadata</summary>
-                        {% for metadata in result.datapoint.metadata %}
-                        <p>{{ metadata.key }}: {{ metadata.value }}</p>
-                        {% endfor %}
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-3">{{ result.datapoint.name }}</h2>
+                    <p class="text-gray-700 whitespace-pre-wrap leading-relaxed mb-4">{{ result.data }}</p>
+                    <details class="group appearance-none">
+                        <summary
+                            class="cursor-pointer text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors">
+                            <span class="flex items-center gap-1">
+                                Metadata
+                                <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </span>
+                        </summary>
+                        <div class="mt-3 pl-4 border-l-2 border-gray-100">
+                            {% for metadata in result.datapoint.metadata %}
+                            <p class="text-sm text-gray-600 py-1">
+                                <span class="font-medium">{{ metadata.key }}:</span>
+                                <span>{{ metadata.value }}</span>
+                            </p>
+                            {% endfor %}
+                        </div>
                     </details>
                 </div>
                 {% endfor %}
             </div>
             {% elif query %}
-            <div class="text-center text-gray-600">
-                No results found for "{{ query }}"
+            <div class="text-center py-12">
+                <div class="text-gray-400 text-lg">No results found for "{{ query }}"</div>
+                <p class="text-gray-500 mt-2">Try adjusting your search terms</p>
             </div>
             {% endif %}
         </div>

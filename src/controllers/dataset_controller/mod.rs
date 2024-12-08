@@ -7,6 +7,7 @@ use std::{collections::HashMap, sync::Arc};
 use tokio::sync::Mutex;
 
 pub mod create_dataset;
+pub mod get_dataset;
 pub mod list_datasets;
 pub mod search_dataset;
 

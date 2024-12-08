@@ -15,6 +15,14 @@ pub async fn search_page(
 ) -> Result<Html<String>, Error> {
     let mut context = Context::new();
     context.insert("dataset_id", &dataset_id);
+    let dataset = dataset_handler
+        .dataset_controller
+        .get_dataset(&dataset_id)
+        .await
+        .map_err(|e| {
+            Error::from_string(e.to_string(), poem::http::StatusCode::INTERNAL_SERVER_ERROR)
+        })?;
+    context.insert("dataset_name", &dataset.name);
 
     let search_query = query_params.get("q");
     // only if q present, use the search
