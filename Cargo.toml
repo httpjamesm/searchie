@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.94"
-chrono = "0.4.38"
+chrono = { version = "0.4.38", features = ["serde"] }
 colored = "2.1.0"
 fastembed = "4.3.0"
 ollama-rs = "0.2.1"

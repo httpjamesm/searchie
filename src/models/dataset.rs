@@ -1,8 +1,9 @@
-use chrono::{DateTime, Utc};
+use chrono::NaiveDateTime;
+use serde::Serialize;
 
-#[derive(sqlx::FromRow)]
+#[derive(sqlx::FromRow, Serialize)]
 pub struct Dataset {
     pub id: String,
     pub name: String,
-    pub created_at: DateTime<Utc>,
+    pub created_at: NaiveDateTime,
 }

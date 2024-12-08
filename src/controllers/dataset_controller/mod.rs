@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::repositories::dataset_repository::DatasetRepository;
 
 pub mod create_dataset;
+pub mod list_datasets;
 pub struct DatasetController {
     dataset_repository: Arc<DatasetRepository>,
 }

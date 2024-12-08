@@ -13,7 +13,7 @@ pub struct CreateDatapointRequest {
     dataset_id: String,
     data_type: String,
     name: String,
-    data: Vec<u8>,
+    data: String,
     metadata: Option<HashMap<String, String>>,
 }
 
@@ -28,7 +28,7 @@ pub async fn create_datapoint(
             &payload.dataset_id,
             &payload.data_type,
             &payload.name,
-            &payload.data,
+            &payload.data.as_bytes().to_vec(),
             payload.metadata,
         )
         .await
