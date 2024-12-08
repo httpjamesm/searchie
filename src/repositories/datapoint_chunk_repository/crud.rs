@@ -4,7 +4,7 @@ use anyhow::Result;
 use sqlx::{query, query_as};
 
 impl DatapointChunkRepository {
-    pub async fn create(&self, datapoint_id: i64, data: &[u8]) -> Result<i64> {
+    pub async fn create(&self, datapoint_id: i64, data: &Vec<u8>) -> Result<i64> {
         let id = query!(
             "INSERT INTO datapoint_chunks (datapoint_id, data) VALUES (?, ?)",
             datapoint_id,

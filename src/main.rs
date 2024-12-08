@@ -2,8 +2,10 @@ use anyhow::Result;
 use poem::{listener::TcpListener, Route, Server};
 use sqlx::sqlite::SqlitePoolOptions;
 
+mod controllers;
 mod models;
 mod repositories;
+mod utils;
 
 #[tokio::main]
 async fn main() -> Result<()> {

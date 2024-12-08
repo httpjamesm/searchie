@@ -5,7 +5,7 @@ use sqlx::query;
 use uuid::Uuid;
 
 impl DatasetRepository {
-    pub async fn create_dataset(&self, name: &str) -> Result<()> {
+    pub async fn create_dataset(&self, name: &str) -> Result<String> {
         let dataset_id = Uuid::new_v4().to_string();
         let created_at = Utc::now();
         query!(
@@ -16,6 +16,6 @@ impl DatasetRepository {
         )
         .execute(&*self.pool)
         .await?;
-        Ok(())
+        Ok(dataset_id)
     }
 }
