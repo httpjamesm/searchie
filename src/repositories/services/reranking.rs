@@ -19,7 +19,7 @@ impl FastEmbedRerankingService {
         // ensure the directory exists
         std::fs::create_dir_all(model_dir_path).unwrap();
         let reranker_model = TextRerank::try_new(
-            RerankInitOptions::new(RerankerModel::JINARerankerV1TurboEn)
+            RerankInitOptions::new(RerankerModel::BGERerankerBase)
                 .with_cache_dir(PathBuf::from(model_dir_path))
                 .with_show_download_progress(true),
         )

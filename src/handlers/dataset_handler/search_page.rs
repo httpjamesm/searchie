@@ -4,7 +4,7 @@ use poem::{
     web::{Data, Html, Path, Query},
     Error,
 };
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc, time::Instant};
 use tera::Context;
 
 #[handler]
@@ -27,6 +27,7 @@ pub async fn search_page(
     let search_query = query_params.get("q");
     // only if q present, use the search
     if let Some(search_query) = search_query {
+        let start = Instant::now();
         let datapoints = dataset_handler
             .dataset_controller
             .search_dataset(&dataset_id, &search_query)
@@ -34,8 +35,10 @@ pub async fn search_page(
             .map_err(|e| {
                 Error::from_string(e.to_string(), poem::http::StatusCode::INTERNAL_SERVER_ERROR)
             })?;
+        let elapsed = start.elapsed().as_millis();
         context.insert("results", &datapoints);
         context.insert("query", &search_query);
+        context.insert("search_duration", &elapsed);
     }
 
     TEMPLATES
