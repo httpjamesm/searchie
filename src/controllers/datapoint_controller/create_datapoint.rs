@@ -66,7 +66,7 @@ impl DatapointController {
 
         for (i, chunk_id) in chunk_ids.iter().enumerate() {
             // insert into world
-            match self.worlds.lock().unwrap().get_mut(&datapoint.dataset_id) {
+            match self.worlds.lock().await.get_mut(&datapoint.dataset_id) {
                 Some(world) => {
                     world.insert_vector(*chunk_id as u32, Vector::new_f16(&embeddings_batch[i]))?;
                 }
@@ -79,7 +79,7 @@ impl DatapointController {
             &format!("indices/{}.smallworld", datapoint.dataset_id),
             self.worlds
                 .lock()
-                .unwrap()
+                .await
                 .get_mut(&datapoint.dataset_id)
                 .unwrap()
                 .dump()

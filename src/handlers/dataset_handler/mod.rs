@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 pub mod create_dataset;
 pub mod list_datasets;
+pub mod search_dataset;
 #[derive(Clone)]
 pub struct DatasetHandler {
     dataset_controller: Arc<DatasetController>,

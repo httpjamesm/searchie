@@ -1,6 +1,9 @@
 use anyhow::{anyhow, Result};
 use chrono::NaiveDateTime;
+use serde::{Serialize, Serializer};
 
+#[derive(sqlx::Type, Serialize)]
+#[sqlx(type_name = "data_point_type")]
 pub enum DataPointType {
     Text,
     // Text for now, but maybe in the future we'll have other types
@@ -27,7 +30,7 @@ impl From<String> for DataPointType {
     }
 }
 
-#[derive(sqlx::FromRow)]
+#[derive(sqlx::FromRow, Serialize)]
 pub struct Datapoint {
     pub id: i64,
     pub dataset_id: String,
@@ -47,10 +50,21 @@ pub struct DatapointMetadata {
     pub value: String,
     pub created_at: NaiveDateTime,
 }
-#[derive(sqlx::FromRow)]
+#[derive(sqlx::FromRow, Serialize)]
 pub struct DatapointChunk {
     pub id: i64,
     pub datapoint_id: i64,
+    #[serde(serialize_with = "serialize_bytes_to_string")]
     pub data: Vec<u8>,
     pub created_at: NaiveDateTime,
+}
+
+fn serialize_bytes_to_string<S>(bytes: &Vec<u8>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    match String::from_utf8(bytes.clone()) {
+        Ok(s) => serializer.serialize_str(&s),
+        Err(_) => serializer.serialize_str("Invalid UTF-8 data"), // Or handle error differently
+    }
 }

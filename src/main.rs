@@ -1,28 +1,28 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
-
 use anyhow::Result;
 use controllers::{
     datapoint_controller::DatapointController, dataset_controller::DatasetController,
 };
 use handlers::{
     datapoint_handler::{create_datapoint::create_datapoint, DatapointHandler},
-    dataset_handler::{create_dataset::create_dataset, DatasetHandler},
+    dataset_handler::{
+        create_dataset::create_dataset, search_dataset::search_dataset, DatasetHandler,
+    },
 };
-use poem::{listener::TcpListener, post, EndpointExt, Route, Server};
+use poem::{get, listener::TcpListener, post, EndpointExt, Route, Server};
 use repositories::{
     datapoint_chunk_repository::DatapointChunkRepository,
     datapoint_metadata_repository::DatapointMetadataRepository,
-    datapoint_repository::DatapointRepository, dataset_repository::DatasetRepository,
-    services::embeddings::OllamaEmbeddingsService,
+    datapoint_repository::DatapointRepository,
+    dataset_repository::DatasetRepository,
+    services::embeddings::{EmbeddingsService, OllamaEmbeddingsService},
 };
 use small_world_rs::{
     distance_metric::{CosineDistance, DistanceMetric},
     world::world::World,
 };
 use sqlx::sqlite::SqlitePoolOptions;
+use std::{collections::HashMap, sync::Arc};
+use tokio::sync::Mutex;
 
 mod controllers;
 mod handlers;
@@ -44,7 +44,8 @@ async fn main() -> Result<()> {
 
     // services
     let tokenizer_path = "./tokenizer.json";
-    let ollama_embeddings_service = Box::new(OllamaEmbeddingsService::new());
+    let ollama_embeddings_service =
+        Arc::new(Box::new(OllamaEmbeddingsService::new()) as Box<dyn EmbeddingsService>);
 
     // repositories
     let datapoint_repository = Arc::new(DatapointRepository::new(pool.clone()));
@@ -62,7 +63,7 @@ async fn main() -> Result<()> {
             // read from dump
             let dump_data = std::fs::read(&format!("indices/{}.smallworld", dataset.id)).unwrap();
             let world = World::new_from_dump(&dump_data).unwrap();
-            worlds.lock().unwrap().insert(dataset.id, world);
+            worlds.lock().await.insert(dataset.id, world);
         } else {
             let world = World::new(24, 50, 40, DistanceMetric::Cosine(CosineDistance)).unwrap();
             // dump to file
@@ -71,7 +72,7 @@ async fn main() -> Result<()> {
                 world.dump().unwrap(),
             )
             .unwrap();
-            worlds.lock().unwrap().insert(dataset.id, world);
+            worlds.lock().await.insert(dataset.id, world);
         }
     }
 
@@ -80,11 +81,16 @@ async fn main() -> Result<()> {
         datapoint_repository.clone(),
         datapoint_metadata_repository.clone(),
         datapoint_chunk_repository.clone(),
-        Arc::new(ollama_embeddings_service),
+        ollama_embeddings_service.clone(),
         tokenizer_path,
         worlds.clone(),
     ));
-    let dataset_controller = Arc::new(DatasetController::new(dataset_repository.clone()));
+    let dataset_controller = Arc::new(DatasetController::new(
+        dataset_repository.clone(),
+        worlds.clone(),
+        ollama_embeddings_service.clone(),
+        datapoint_chunk_repository.clone(),
+    ));
 
     // handlers
     let datapoint_handler = Arc::new(DatapointHandler::new(datapoint_controller.clone()));
@@ -92,6 +98,7 @@ async fn main() -> Result<()> {
 
     let app = Route::new()
         .at("/datasets", post(create_dataset))
+        .at("/datasets/:id/search", get(search_dataset))
         .at("/datapoints", post(create_datapoint))
         .data(datapoint_handler)
         .data(dataset_handler);

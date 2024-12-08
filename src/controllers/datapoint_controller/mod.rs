@@ -1,10 +1,7 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
-
 use small_world_rs::world::world::World;
+use std::{collections::HashMap, sync::Arc};
 use tokenizers::Tokenizer;
+use tokio::sync::Mutex;
 
 use crate::repositories::{
     datapoint_chunk_repository::DatapointChunkRepository,
