@@ -39,6 +39,7 @@ pub async fn create_datapoint(
             )
             .await
         {
+            println!("Error creating datapoint: {}", e);
             return Response::builder()
                 .status(StatusCode::INTERNAL_SERVER_ERROR)
                 .body(e.to_string());

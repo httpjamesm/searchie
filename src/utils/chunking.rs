@@ -1,11 +1,20 @@
 use anyhow::Result;
 use tokenizers::Tokenizer;
 
-pub struct Chunk {
-    text: String,
-    token_count: usize,
-}
-
+/// Splits text into chunks based on token count, optionally prefixing each chunk with a name.
+/// Ensures that each chunk does not exceed `max_tokens` and includes `overlap_tokens` from the previous chunk.
+///
+/// # Arguments
+///
+/// * `name` - Optional prefix for each chunk.
+/// * `text` - The input text to be chunked.
+/// * `max_tokens` - Maximum number of tokens allowed per chunk.
+/// * `overlap_tokens` - Number of tokens to overlap between consecutive chunks.
+/// * `tokenizer` - Tokenizer used to encode the text.
+///
+/// # Returns
+///
+/// A vector of text chunks.
 pub fn chunk_text(
     name: Option<&str>,
     text: &str,
@@ -22,57 +31,64 @@ pub fn chunk_text(
     let mut current_chunk = Vec::new();
     let mut token_counts = Vec::new();
     let mut current_total_tokens = 0;
-    let mut is_overlap = Vec::new();
 
     for paragraph in paragraphs {
-        let chunk_with_name = match name {
-            Some(name) => format!("{} - {}", name, paragraph),
-            None => paragraph.to_string(),
+        let trimmed = paragraph.trim();
+        let prefixed = if let Some(name) = name {
+            format!("{} - {}", name, trimmed)
+        } else {
+            trimmed.to_string()
         };
-        let tokens = tokenizer.encode(chunk_with_name, false).unwrap();
+        let tokens = tokenizer
+            .encode(prefixed.as_str(), false)
+            .map_err(|e| anyhow::anyhow!("Failed to encode paragraph: {}", e))?;
         let token_count = tokens.get_ids().len();
 
         if current_total_tokens + token_count <= max_tokens {
-            current_chunk.push(paragraph);
+            current_chunk.push(trimmed);
             token_counts.push(token_count);
-            is_overlap.push(false);
             current_total_tokens += token_count;
         } else {
             if !current_chunk.is_empty() {
-                // include name if it exists
-                let full_chunk = match name {
-                    Some(name) => format!("{} - {}", name, current_chunk.join("\n")),
-                    None => current_chunk.join("\n"),
-                };
-                chunks.push(full_chunk);
+                let chunk_text = join_chunk(name, &current_chunk);
+                chunks.push(chunk_text);
             }
 
+            // Determine overlap
             let mut overlap_start = current_chunk.len();
-            let mut overlap_tokens_count = 0;
-            while overlap_start > 0 && overlap_tokens_count < overlap_tokens {
+            let mut overlap_token_sum = 0;
+            while overlap_start > 0 && overlap_token_sum < overlap_tokens {
                 overlap_start -= 1;
-                overlap_tokens_count += token_counts[overlap_start];
+                overlap_token_sum += token_counts[overlap_start];
             }
 
+            // Retain overlapping paragraphs
             current_chunk = current_chunk.drain(overlap_start..).collect();
             token_counts = token_counts.drain(overlap_start..).collect();
-            is_overlap = vec![true; current_chunk.len()];
             current_total_tokens = token_counts.iter().sum();
 
-            current_chunk.push(paragraph);
+            // Add the new paragraph
+            current_chunk.push(trimmed);
             token_counts.push(token_count);
-            is_overlap.push(false);
             current_total_tokens += token_count;
         }
     }
 
+    // Add the final chunk if any
     if !current_chunk.is_empty() {
-        let final_chunk = match name {
-            Some(name) => format!("{} - {}", name, current_chunk.join("\n")),
-            None => current_chunk.join("\n"),
-        };
-        chunks.push(final_chunk);
+        let chunk_text = join_chunk(name, &current_chunk);
+        chunks.push(chunk_text);
     }
 
     Ok(chunks)
+}
+
+/// Helper function to join paragraphs into a single chunk with optional name prefix.
+fn join_chunk(name: Option<&str>, paragraphs: &[&str]) -> String {
+    let joined = paragraphs.join("\n");
+    if let Some(name) = name {
+        format!("{} - {}", name, joined).trim().to_string()
+    } else {
+        joined.trim().to_string()
+    }
 }

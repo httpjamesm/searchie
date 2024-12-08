@@ -1,5 +1,5 @@
 use super::DatasetController;
-use crate::models::datapoint::DatapointChunk;
+use crate::models::datapoint::DatapointChunkWithDatapoint;
 use anyhow::Result;
 use small_world_rs::primitives::vector::Vector;
 
@@ -8,7 +8,7 @@ impl DatasetController {
         &self,
         dataset_id: &str,
         query: &str,
-    ) -> Result<Vec<DatapointChunk>> {
+    ) -> Result<Vec<DatapointChunkWithDatapoint>> {
         let dataset = self.dataset_repository.get_dataset(dataset_id).await?;
 
         // get world
@@ -20,8 +20,6 @@ impl DatasetController {
 
         // search world
         let results = world.search(&Vector::new_f16(&query_embedding), 10, 20)?;
-
-        println!("results: {:?}", results);
 
         // for every id, get the data point chunk from db
         let datapoint_chunks = self

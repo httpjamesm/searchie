@@ -1,5 +1,5 @@
 use super::DatapointChunkRepository;
-use crate::models::datapoint::DatapointChunk;
+use crate::models::datapoint::{DatapointChunk, DatapointChunkWithDatapoint};
 use anyhow::Result;
 use sqlx::{query, query_as};
 
@@ -44,24 +44,33 @@ impl DatapointChunkRepository {
         Ok(())
     }
 
-    pub async fn get_by_ids(&self, ids: Vec<i64>) -> Result<Vec<DatapointChunk>> {
-        // Create placeholders for the IN clause (?,?,?)
+    pub async fn get_by_ids(&self, ids: Vec<i64>) -> Result<Vec<DatapointChunkWithDatapoint>> {
         let placeholders = vec!["?"].repeat(ids.len()).join(",");
         let query = format!(
-            "SELECT * FROM datapoint_chunks WHERE id IN ({})",
+            r#"
+    SELECT 
+        dc.id, dc.datapoint_id, dc.data as "chunk_data", dc.created_at,
+        d.id as "datapoint_id", 
+        d.dataset_id as "dataset_id",
+        d.data_type as "data_type",
+        d.name as "name",
+        d.data as "data",
+        d.created_at as "created_at",
+        d.indexed_at as "indexed_at"
+    FROM datapoint_chunks dc
+    JOIN datapoints d ON dc.datapoint_id = d.id
+    WHERE dc.id IN ({})
+    "#,
             placeholders
         );
 
-        // Convert the query to a sqlx::Query
-        let mut query = sqlx::query_as(&query);
+        let mut query = sqlx::query_as::<_, DatapointChunkWithDatapoint>(&query);
 
-        // Bind each ID as a separate parameter
         for id in ids {
             query = query.bind(id);
         }
 
-        let chunks = query.fetch_all(&*self.pool).await?;
-
-        Ok(chunks)
+        let results = query.fetch_all(&*self.pool).await?;
+        Ok(results)
     }
 }

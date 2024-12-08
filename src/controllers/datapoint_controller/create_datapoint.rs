@@ -44,8 +44,8 @@ impl DatapointController {
         let chunks = chunk_text(
             datapoint.name.as_deref(),
             &String::from_utf8(datapoint.data)?,
-            1000,
-            100,
+            256,
+            128,
             &self.tokenizer,
         )?;
 
@@ -53,13 +53,23 @@ impl DatapointController {
         let mut embeddings_batch = Vec::new();
 
         for chunk in chunks {
+            let chunk_to_index = chunk.clone();
+            // for the chunk being added to the db, if the datapoint has a name, strip the name from the chunk so we don't show it in the search results
+            let mut chunk_to_log = chunk.clone();
+            if let Some(name) = datapoint.name.as_deref() {
+                chunk_to_log = chunk_to_log.replacen(&format!("{} - ", name), "", 1);
+            }
+            println!("indexing chunk: {}", chunk_to_log);
             let chunk_id = self
                 .datapoint_chunk_repository
-                .create(datapoint_id, &chunk.as_bytes().to_vec())
+                .create(datapoint_id, &chunk_to_log.as_bytes().to_vec())
                 .await?;
 
             // create embedding
-            let embedding = self.embeddings_service.get_text_embedding(&chunk).await?;
+            let embedding = self
+                .embeddings_service
+                .get_text_embedding(&chunk_to_index)
+                .await?;
             embeddings_batch.push(embedding);
             chunk_ids.push(chunk_id);
         }

@@ -1,9 +1,8 @@
 use crate::{handlers::dataset_handler::DatasetHandler, TEMPLATES};
 use poem::{
-    error::InternalServerError,
     handler,
     web::{Data, Html, Path, Query},
-    Error, IntoResponse, Response,
+    Error,
 };
 use std::{collections::HashMap, sync::Arc};
 use tera::Context;
@@ -17,16 +16,18 @@ pub async fn search_page(
     let mut context = Context::new();
     context.insert("dataset_id", &dataset_id);
 
+    let search_query = query_params.get("q");
     // only if q present, use the search
-    if query_params.contains_key("q") {
+    if let Some(search_query) = search_query {
         let datapoints = dataset_handler
             .dataset_controller
-            .search_dataset(&dataset_id, &query_params.get("q").unwrap())
+            .search_dataset(&dataset_id, &search_query)
             .await
             .map_err(|e| {
                 Error::from_string(e.to_string(), poem::http::StatusCode::INTERNAL_SERVER_ERROR)
             })?;
         context.insert("results", &datapoints);
+        context.insert("query", &search_query);
     }
 
     TEMPLATES
