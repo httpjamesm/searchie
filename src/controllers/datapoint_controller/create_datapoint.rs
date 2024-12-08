@@ -29,6 +29,8 @@ impl DatapointController {
                     .await?;
             }
         }
+
+        self.index_datapoint(datapoint_id).await?;
         Ok(())
     }
 
