@@ -17,6 +17,14 @@ pub struct OllamaEmbeddingsService {
     client: Ollama,
 }
 
+impl OllamaEmbeddingsService {
+    pub fn new() -> Self {
+        Self {
+            client: Ollama::new("http://localhost", 11434),
+        }
+    }
+}
+
 impl EmbeddingsService for OllamaEmbeddingsService {
     fn get_text_embedding<'a>(
         &'a self,
