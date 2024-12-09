@@ -22,7 +22,16 @@ pub async fn dataset_page(
             Error::from_string(e.to_string(), poem::http::StatusCode::INTERNAL_SERVER_ERROR)
         })?;
 
+    let datapoint_count = dataset_handler
+        .datapoint_controller
+        .count_datapoints(&dataset_id)
+        .await
+        .map_err(|e| {
+            Error::from_string(e.to_string(), poem::http::StatusCode::INTERNAL_SERVER_ERROR)
+        })?;
+
     context.insert("dataset", &dataset);
+    context.insert("datapoint_count", &datapoint_count);
 
     TEMPLATES
         .render("dashboard/dataset/dataset.html.tera", &context)

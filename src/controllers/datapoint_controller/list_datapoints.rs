@@ -7,4 +7,12 @@ impl DatapointController {
         let datapoints = self.datapoint_repository.get_datapoints(dataset_id).await?;
         Ok(datapoints)
     }
+
+    pub async fn count_datapoints(&self, dataset_id: &str) -> Result<i64> {
+        let count = self
+            .datapoint_repository
+            .count_datapoints(dataset_id)
+            .await?;
+        Ok(count)
+    }
 }
