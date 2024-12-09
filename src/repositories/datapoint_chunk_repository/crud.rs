@@ -99,13 +99,25 @@ impl DatapointChunkRepository {
                     },
                 });
 
-            if let Ok(metadata_id) = row.try_get::<i64, _>("dm_id") {
+            if let (
+                Ok(Some(metadata_id)),
+                Ok(Some(datapoint_id)),
+                Ok(Some(key)),
+                Ok(Some(value)),
+                Ok(Some(created_at)),
+            ) = (
+                row.try_get("dm_id"),
+                row.try_get("dm_datapoint_id"),
+                row.try_get("dm_key"),
+                row.try_get("dm_value"),
+                row.try_get("dm_created_at"),
+            ) {
                 chunk.datapoint.metadata.push(DatapointMetadata {
                     id: metadata_id,
-                    datapoint_id: row.get("dm_datapoint_id"),
-                    key: row.get("dm_key"),
-                    value: row.get("dm_value"),
-                    created_at: row.get("dm_created_at"),
+                    datapoint_id,
+                    key,
+                    value,
+                    created_at,
                 });
             }
         }
