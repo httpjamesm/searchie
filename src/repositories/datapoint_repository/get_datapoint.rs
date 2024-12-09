@@ -10,4 +10,15 @@ impl DatapointRepository {
             .await?;
         Ok(datapoint)
     }
+
+    pub async fn get_datapoints(&self, dataset_id: &str) -> Result<Vec<Datapoint>> {
+        let datapoints = query_as!(
+            Datapoint,
+            "SELECT * FROM datapoints WHERE dataset_id = ?",
+            dataset_id
+        )
+        .fetch_all(&*self.pool)
+        .await?;
+        Ok(datapoints)
+    }
 }

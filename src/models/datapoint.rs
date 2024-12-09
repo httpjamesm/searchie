@@ -103,3 +103,28 @@ where
 //     let s = String::deserialize(deserializer)?;
 //     Ok(s.into_bytes())
 // }
+
+#[derive(Serialize)]
+pub struct DatapointView {
+    pub id: i64,
+    pub name: Option<String>,
+    pub content_preview: String,
+    pub created_at: String,
+}
+
+impl From<Datapoint> for DatapointView {
+    fn from(datapoint: Datapoint) -> Self {
+        let content_preview = String::from_utf8(datapoint.data.clone())
+            .unwrap_or_else(|_| "Invalid UTF-8 data".to_string())
+            .chars()
+            .take(100)
+            .collect::<String>();
+
+        Self {
+            id: datapoint.id,
+            name: datapoint.name,
+            content_preview,
+            created_at: datapoint.created_at.format("%Y-%m-%d %H:%M:%S").to_string(),
+        }
+    }
+}

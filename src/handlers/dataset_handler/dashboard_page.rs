@@ -24,7 +24,7 @@ pub async fn dashboard_page(
     context.insert("datasets", &datasets);
 
     TEMPLATES
-        .render("dashboard.html.tera", &context)
+        .render("dashboard/dashboard.html.tera", &context)
         .map_err(|e| {
             Error::from_string(e.to_string(), poem::http::StatusCode::INTERNAL_SERVER_ERROR)
         })

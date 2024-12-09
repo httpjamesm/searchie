@@ -5,9 +5,9 @@ use controllers::{
 use handlers::{
     datapoint_handler::{create_datapoint::create_datapoint, DatapointHandler},
     dataset_handler::{
-        create_dataset::create_dataset, dashboard_page::dashboard_page, dataset_page::dataset_page,
-        home_page::home_page, search_dataset::search_dataset, search_page::search_page,
-        DatasetHandler,
+        create_dataset::create_dataset, dashboard_page::dashboard_page,
+        datapoints_page::datapoints_page, dataset_page::dataset_page, home_page::home_page,
+        search_dataset::search_dataset, search_page::search_page, DatasetHandler,
     },
 };
 use once_cell::sync::Lazy;
@@ -117,7 +117,10 @@ async fn main() -> Result<()> {
 
     // handlers
     let datapoint_handler = Arc::new(DatapointHandler::new(datapoint_controller.clone()));
-    let dataset_handler = Arc::new(DatasetHandler::new(dataset_controller.clone()));
+    let dataset_handler = Arc::new(DatasetHandler::new(
+        dataset_controller.clone(),
+        datapoint_controller.clone(),
+    ));
 
     let app = Route::new()
         .nest(
@@ -131,9 +134,10 @@ async fn main() -> Result<()> {
             "/dashboard",
             Route::new()
                 .at("/", get(dashboard_page))
-                .at("/datasets/:id", get(dataset_page)),
+                .at("/datasets/:id", get(dataset_page))
+                .at("/datasets/:id/datapoints", get(datapoints_page)),
         )
-        .at("/", get(home_page)) // We should create a home page
+        .at("/", get(home_page))
         .at("/:id/search", get(search_page))
         .data(datapoint_handler)
         .data(dataset_handler);

@@ -10,6 +10,7 @@ use crate::repositories::{
 };
 
 pub mod create_datapoint;
+pub mod list_datapoints;
 
 pub struct DatapointController {
     datapoint_repository: Arc<DatapointRepository>,
