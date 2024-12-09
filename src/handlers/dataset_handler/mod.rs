@@ -11,6 +11,7 @@ pub mod home_page;
 pub mod list_datasets;
 pub mod search_dataset;
 pub mod search_page;
+pub mod upload_page;
 
 #[derive(Clone)]
 pub struct DatasetHandler {

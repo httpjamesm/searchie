@@ -7,7 +7,8 @@ use handlers::{
     dataset_handler::{
         create_dataset::create_dataset, dashboard_page::dashboard_page,
         datapoints_page::datapoints_page, dataset_page::dataset_page, home_page::home_page,
-        search_dataset::search_dataset, search_page::search_page, DatasetHandler,
+        search_dataset::search_dataset, search_page::search_page, upload_page::upload_page,
+        DatasetHandler,
     },
 };
 use once_cell::sync::Lazy;
@@ -135,7 +136,8 @@ async fn main() -> Result<()> {
             Route::new()
                 .at("/", get(dashboard_page))
                 .at("/datasets/:id", get(dataset_page))
-                .at("/datasets/:id/datapoints", get(datapoints_page)),
+                .at("/datasets/:id/datapoints", get(datapoints_page))
+                .at("/datasets/:id/upload", get(upload_page)),
         )
         .at("/", get(home_page))
         .at("/:id/search", get(search_page))

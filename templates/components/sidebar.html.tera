@@ -49,7 +49,7 @@
                 </svg>
                 <span data-collapse-text>Overview</span>
             </a>
-            <a href="#"
+            <a href="/dashboard/datasets/{{ dataset.id }}/upload"
                 class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all text-sm flex items-center">
                 <svg class="w-5 h-5 hidden" data-collapse-icon-only fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
