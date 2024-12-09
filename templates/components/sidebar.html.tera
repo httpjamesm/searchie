@@ -1,49 +1,157 @@
-<div class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
-    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-        <a href="/dashboard"
-            class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Back to Datasets
-        </a>
-    </div>
+<div class="relative flex flex-col h-full" data-sidebar>
+    <button
+        class="absolute -right-3 top-4 z-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-1 hover:bg-gray-50 dark:hover:bg-gray-700"
+        data-collapse-btn>
+        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400 transform transition-transform" data-collapse-icon
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+    </button>
 
-    <div class="p-4">
-        <h1 class="text-xl font-semibold text-gray-900 dark:text-white mb-1">{{ dataset.name }}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ dataset.id }}</p>
-
-        <div class="space-y-2">
-            <a href="/{{ dataset.id }}/search"
-                class="block w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all text-center text-sm font-medium">
-                Search Interface
+    <div class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 h-full"
+        data-sidebar-content>
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <a href="/dashboard"
+                class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <span data-collapse-text>Back to Datasets</span>
             </a>
         </div>
-    </div>
 
-    <nav class="flex-1 p-4 space-y-1">
-        <a href="/dashboard/datasets/{{ dataset.id }}"
-            class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all text-sm">
-            Overview
-        </a>
-        <a href="#"
-            class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all text-sm">
-            Upload Data
-        </a>
-        <a href="/dashboard/datasets/{{ dataset.id }}/datapoints"
-            class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all text-sm">
-            Data Points
-        </a>
-        <a href="#"
-            class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all text-sm">
-            Settings
-        </a>
-    </nav>
+        <div class="p-4">
+            <h1 class="text-xl font-semibold text-gray-900 dark:text-white mb-1" data-collapse-text>{{ dataset.name }}
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4" data-collapse-text>{{ dataset.id }}</p>
 
-    <div class="p-4 border-t border-gray-200 dark:border-gray-700">
-        <button
-            class="w-full px-4 py-2 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-all text-sm font-medium">
-            Delete Dataset
-        </button>
+            <div class="space-y-2">
+                <a href="/{{ dataset.id }}/search"
+                    class="block w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all text-center text-sm font-medium">
+                    <svg class="w-5 h-5 mx-auto opacity-0 transition-opacity duration-300" data-collapse-icon-only
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <span class="opacity-100 transition-opacity duration-300" data-collapse-text>Search Interface</span>
+                </a>
+            </div>
+        </div>
+
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="/dashboard/datasets/{{ dataset.id }}"
+                class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all text-sm flex items-center">
+                <svg class="w-5 h-5 hidden" data-collapse-icon-only fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                    </path>
+                </svg>
+                <span data-collapse-text>Overview</span>
+            </a>
+            <a href="#"
+                class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all text-sm flex items-center">
+                <svg class="w-5 h-5 hidden" data-collapse-icon-only fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                </svg>
+                <span data-collapse-text>Upload Data</span>
+            </a>
+            <a href="/dashboard/datasets/{{ dataset.id }}/datapoints"
+                class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all text-sm flex items-center">
+                <svg class="w-5 h-5 hidden" data-collapse-icon-only fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7zm0 5h16"></path>
+                </svg>
+                <span data-collapse-text>Data Points</span>
+            </a>
+            <a href="#"
+                class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all text-sm flex items-center">
+                <svg class="w-5 h-5 hidden" data-collapse-icon-only fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span data-collapse-text>Settings</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+                class="w-full px-4 py-2 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-all text-sm font-medium flex items-center justify-center">
+                <svg class="w-5 h-5 hidden" data-collapse-icon-only fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                    </path>
+                </svg>
+                <span data-collapse-text>Delete Dataset</span>
+            </button>
+        </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sidebar = document.querySelector('[data-sidebar]');
+        const sidebarContent = sidebar.querySelector('[data-sidebar-content]');
+        const collapseBtn = sidebar.querySelector('[data-collapse-btn]');
+        const collapseIcon = sidebar.querySelector('[data-collapse-icon]');
+        const collapseTexts = sidebar.querySelectorAll('[data-collapse-text]');
+        const collapseIconsOnly = sidebar.querySelectorAll('[data-collapse-icon-only]');
+
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (isCollapsed) {
+            sidebarContent.classList.add('w-20');
+            sidebarContent.classList.remove('w-64');
+            collapseIcon.classList.add('rotate-180');
+            collapseTexts.forEach(text => {
+                text.classList.add('opacity-0');
+                text.classList.add('hidden');
+            });
+            collapseIconsOnly.forEach(icon => {
+                icon.classList.remove('hidden');
+                setTimeout(() => icon.classList.remove('opacity-0'), 50);
+            });
+        }
+
+        collapseBtn.addEventListener('click', () => {
+            const isCurrentlyCollapsed = sidebarContent.classList.contains('w-20');
+
+            if (isCurrentlyCollapsed) {
+                sidebarContent.classList.remove('w-20');
+                sidebarContent.classList.add('w-64');
+                collapseIcon.classList.remove('rotate-180');
+
+                collapseIconsOnly.forEach(icon => icon.classList.add('opacity-0'));
+                setTimeout(() => {
+                    collapseIconsOnly.forEach(icon => icon.classList.add('hidden'));
+                    collapseTexts.forEach(text => text.classList.remove('hidden'));
+                    setTimeout(() => {
+                        collapseTexts.forEach(text => text.classList.remove('opacity-0'));
+                    }, 50);
+                }, 300);
+            } else {
+                sidebarContent.classList.add('w-20');
+                sidebarContent.classList.remove('w-64');
+                collapseIcon.classList.add('rotate-180');
+
+                collapseTexts.forEach(text => text.classList.add('opacity-0'));
+                setTimeout(() => {
+                    collapseTexts.forEach(text => text.classList.add('hidden'));
+                    collapseIconsOnly.forEach(icon => icon.classList.remove('hidden'));
+                    setTimeout(() => {
+                        collapseIconsOnly.forEach(icon => icon.classList.remove('opacity-0'));
+                    }, 50);
+                }, 300);
+            }
+
+            localStorage.setItem('sidebarCollapsed', !isCurrentlyCollapsed);
+        });
+    });
+</script>
