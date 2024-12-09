@@ -6,6 +6,8 @@ pub mod list_datasets;
 pub mod search_dataset;
 pub mod search_page;
 pub mod dashboard_page;
+pub mod home_page;
+pub mod dataset_page;
 
 #[derive(Clone)]
 pub struct DatasetHandler {
