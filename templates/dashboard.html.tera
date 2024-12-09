@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Searchie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body
+    class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen font-['Inter']">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-[80rem] w-full mx-auto">
+            <div class="flex justify-between items-center mb-12">
+                <h1
+                    class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text font-['Merriweather']">
+                    Dashboard
+                </h1>
+                <button onclick="document.getElementById('createDatasetModal').classList.remove('hidden')"
+                    class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm hover:shadow-md font-medium">
+                    Create Dataset
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {% for dataset in datasets %}
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ dataset.name }}</h2>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ dataset.id }}</p>
+                            </div>
+                            <button onclick="navigator.clipboard.writeText('{{ dataset.id }}')"
+                                class="text-gray-400 hover:text-blue-600 dark:text-gray-500 dark:hover:text-blue-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="flex gap-3">
+                            <a href="/{{ dataset.id }}/search"
+                                class="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-all text-center text-sm font-medium">
+                                Search
+                            </a>
+                            <button onclick="showUploadModal('{{ dataset.id }}')"
+                                class="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-all text-sm font-medium">
+                                Upload Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Dataset Modal -->
+    <div id="createDatasetModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full">
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Create Dataset</h2>
+            <form id="createDatasetForm" onsubmit="createDataset(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dataset Name</label>
+                    <input type="text" name="name" required
+                        class="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button"
+                        onclick="document.getElementById('createDatasetModal').classList.add('hidden')"
+                        class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">
+                        Create
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Upload Data Modal -->
+    <div id="uploadDataModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full">
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Upload Data</h2>
+            <form id="uploadDataForm" onsubmit="uploadData(event)" class="space-y-4">
+                <input type="hidden" id="uploadDatasetId" name="dataset_id">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Data</label>
+                    <textarea name="data" required rows="4"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="document.getElementById('uploadDataModal').classList.add('hidden')"
+                        class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">
+                        Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const createDataset = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const response = await fetch('/api/datasets', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(Object.fromEntries(formData)),
+            });
+            if (response.ok) {
+                window.location.reload();
+            }
+        };
+
+        const showUploadModal = (datasetId) => {
+            document.getElementById('uploadDatasetId').value = datasetId;
+            document.getElementById('uploadDataModal').classList.remove('hidden');
+        };
+
+        const uploadData = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const datasetId = formData.get('dataset_id');
+            const data = formData.get('data');
+
+            const response = await fetch('/api/datapoints', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    dataset_id: datasetId,
+                    datapoints: [{
+                        data_type: 'text',
+                        data: data
+                    }]
+                }),
+            });
+            if (response.ok) {
+                document.getElementById('uploadDataModal').classList.add('hidden');
+                form.reset();
+            }
+        };
+    </script>
+</body>
+
+</html>

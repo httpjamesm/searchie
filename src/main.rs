@@ -4,6 +4,7 @@ use controllers::{
 };
 use handlers::{
     datapoint_handler::{create_datapoint::create_datapoint, DatapointHandler},
+    dataset_handler::dashboard_page::dashboard_page,
     dataset_handler::{
         create_dataset::create_dataset, search_dataset::search_dataset, search_page::search_page,
         DatasetHandler,
@@ -126,6 +127,7 @@ async fn main() -> Result<()> {
                 .at("/datasets/:id/search", get(search_dataset))
                 .at("/datapoints", post(create_datapoint)),
         )
+        .at("/", get(dashboard_page))
         .at("/:id/search", get(search_page))
         .data(datapoint_handler)
         .data(dataset_handler);
