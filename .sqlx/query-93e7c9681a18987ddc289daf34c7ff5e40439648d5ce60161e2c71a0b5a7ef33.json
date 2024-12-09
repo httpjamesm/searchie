@@ -24,22 +24,22 @@
         "type_info": "Blob"
       },
       {
-        "name": "created_at",
+        "name": "hash",
         "ordinal": 4,
-        "type_info": "Datetime"
+        "type_info": "Text"
       },
       {
-        "name": "indexed_at",
+        "name": "created_at",
         "ordinal": 5,
         "type_info": "Datetime"
       },
       {
-        "name": "name",
+        "name": "indexed_at",
         "ordinal": 6,
-        "type_info": "Text"
+        "type_info": "Datetime"
       },
       {
-        "name": "hash",
+        "name": "name",
         "ordinal": 7,
         "type_info": "Text"
       }
@@ -53,9 +53,9 @@
       false,
       false,
       false,
+      false,
       true,
-      true,
-      false
+      true
     ]
   },
   "hash": "93e7c9681a18987ddc289daf34c7ff5e40439648d5ce60161e2c71a0b5a7ef33"
