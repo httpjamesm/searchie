@@ -95,35 +95,27 @@
     </div>
 
     <script>
+        /** @type {HTMLElement} */
         const dropZone = document.getElementById('dropZone');
+        /** @type {HTMLInputElement} */
         const fileInput = document.getElementById('fileInput');
+        /** @type {HTMLElement} */
         const fileList = document.getElementById('fileList');
+        /** @type {HTMLElement} */
         const uploadFilesButton = document.getElementById('uploadFilesButton');
+        /** @type {HTMLElement} */
         const uploadProgress = document.getElementById('uploadProgress');
+        /** @type {HTMLElement} */
         const uploadProgressBar = document.getElementById('uploadProgressBar');
+        /** @type {HTMLElement} */
         const uploadProgressCount = document.getElementById('uploadProgressCount');
 
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('border-blue-500');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('border-blue-500');
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('border-blue-500');
-            addFilesToList(e.dataTransfer.files);
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            addFilesToList(e.target.files);
-        });
-
+        /** @type {Array<{id: string, file: File}>} */
         let selectedFiles = [];
 
+        /**
+         * @param {FileList} files
+         */
         const addFilesToList = (files) => {
             fileList.innerHTML = '';
             selectedFiles = [];
@@ -191,11 +183,25 @@
             uploadFilesButton.classList.toggle('hidden', selectedFiles.length === 0);
         };
 
+        /**
+         * @param {string} fileId
+         */
         const removeFile = (fileId) => {
             selectedFiles = selectedFiles.filter(item => item.id !== fileId);
             addFilesToList(selectedFiles);
         };
 
+        /**
+         * @typedef {Object} Datapoint
+         * @property {'text'} data_type
+         * @property {string} data
+         * @property {string} name
+         */
+
+        /**
+         * @param {Datapoint[]} datapoints
+         * @returns {Promise<void>}
+         */
         const uploadDatapoints = async (datapoints) => {
             const response = await fetch(`/api/datapoints`, {
                 method: 'POST',
@@ -213,6 +219,9 @@
             }
         };
 
+        /**
+         * @returns {Promise<void>}
+         */
         const uploadSelectedFiles = async () => {
             uploadFilesButton.classList.add('hidden');
             const totalFiles = selectedFiles.length;
@@ -230,10 +239,14 @@
                     const data = await file.text();
                     progressFill.style.width = '60%';
 
+                    const fileName = file.name;
+                    // remove file extension
+                    const name = fileName.split('.').slice(0, -1).join('');
+
                     const datapoint = {
                         data_type: 'text',
                         data,
-                        name: file.name
+                        name
                     };
 
                     await uploadDatapoints([datapoint]);
@@ -251,6 +264,9 @@
             }, 1500);
         };
 
+        /**
+         * @returns {Promise<void>}
+         */
         const uploadPastedContent = async () => {
             const name = document.getElementById('contentName').value;
             const content = document.getElementById('contentText').value;
@@ -272,6 +288,25 @@
                 alert(`Failed to upload content: ${error}`);
             }
         };
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-blue-500');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('border-blue-500');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-500');
+            addFilesToList(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            addFilesToList(e.target.files);
+        });
     </script>
 </body>
 
