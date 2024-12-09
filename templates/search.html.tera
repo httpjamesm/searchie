@@ -1,26 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+{% set extra_head = "<style>
+    details>summary {
+        list-style: none;
+    }
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Index | Searchie</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap"
-        rel="stylesheet">
-    <style>
-        details>summary {
-            list-style: none;
-        }
-
-        details>summary::-webkit-details-marker {
-            display: none;
-        }
-    </style>
-</head>
+    details>summary::-webkit-details-marker {
+        display: none;
+    }
+</style>" %}
+{% set page_title = "Search Index" %}
+{% include "components/head.html.tera" %}
 
 <body
     class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen font-['Inter']">
