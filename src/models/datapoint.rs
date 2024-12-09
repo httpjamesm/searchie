@@ -40,6 +40,7 @@ pub struct Datapoint {
     pub data: Vec<u8>,
     pub created_at: NaiveDateTime,
     pub indexed_at: Option<NaiveDateTime>,
+    pub hash: String,
 }
 
 #[derive(sqlx::FromRow, Serialize, Deserialize, Clone)]

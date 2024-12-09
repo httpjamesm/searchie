@@ -54,7 +54,7 @@ impl DatapointChunkRepository {
             r#"
         SELECT 
             dc.id, dc.datapoint_id, dc.data as chunk_data, dc.created_at,
-            d.id as d_id, d.dataset_id, d.data_type, d.name, d.data, d.created_at as d_created_at, d.indexed_at,
+            d.id as d_id, d.dataset_id, d.data_type, d.name, d.data, d.created_at as d_created_at, d.indexed_at, d.hash,
             dm.id as dm_id, dm.datapoint_id as dm_datapoint_id, dm.key as dm_key, dm.value as dm_value, dm.created_at as dm_created_at
         FROM datapoint_chunks dc
         JOIN datapoints d ON dc.datapoint_id = d.id
@@ -93,6 +93,7 @@ impl DatapointChunkRepository {
                             data: row.get("data"),
                             created_at: row.get("d_created_at"),
                             indexed_at: row.get("indexed_at"),
+                            hash: row.get("hash"),
                         },
                         metadata: Vec::new(),
                     },

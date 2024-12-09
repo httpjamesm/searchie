@@ -21,3 +21,4 @@ uuid = { version = "1.11.0", features = ["v4"] }
 walkdir = "2.5.0"
 tera = "1.19.1"
 once_cell = "1.19.0"
+blake3 = "1.5.5"
