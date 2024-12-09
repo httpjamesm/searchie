@@ -1,6 +1,8 @@
-use crate::repositories::{
-    datapoint_chunk_repository::DatapointChunkRepository, dataset_repository::DatasetRepository,
-    services::embeddings::EmbeddingsService, services::reranking::RerankingService,
+use crate::{
+    repositories::{
+        datapoint_chunk_repository::DatapointChunkRepository, dataset_repository::DatasetRepository,
+    },
+    services::{embeddings::EmbeddingsService, reranking::RerankingService},
 };
 use small_world_rs::world::world::World;
 use std::{collections::HashMap, sync::Arc};

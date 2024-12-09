@@ -16,12 +16,13 @@ use poem::{get, listener::TcpListener, post, EndpointExt, Route, Server};
 use repositories::{
     datapoint_chunk_repository::DatapointChunkRepository,
     datapoint_metadata_repository::DatapointMetadataRepository,
-    datapoint_repository::DatapointRepository,
-    dataset_repository::DatasetRepository,
-    services::{
-        embeddings::{EmbeddingsService, OllamaEmbeddingsService},
-        reranking::{FastEmbedRerankingService, RerankingService},
-    },
+    datapoint_repository::DatapointRepository, dataset_repository::DatasetRepository,
+    indexing_queue_repository::IndexingQueueRepository,
+};
+use services::{
+    embeddings::{EmbeddingsService, OllamaEmbeddingsService},
+    indexing_worker::IndexingWorker,
+    reranking::{FastEmbedRerankingService, RerankingService},
 };
 use small_world_rs::{
     distance_metric::{CosineDistance, DistanceMetric},
@@ -36,6 +37,7 @@ mod controllers;
 mod handlers;
 mod models;
 mod repositories;
+mod services;
 mod utils;
 
 static TEMPLATES: Lazy<Tera> = Lazy::new(|| {
@@ -75,6 +77,7 @@ async fn main() -> Result<()> {
     let dataset_repository = Arc::new(DatasetRepository::new(pool.clone()));
     let datapoint_metadata_repository = Arc::new(DatapointMetadataRepository::new(pool.clone()));
     let datapoint_chunk_repository = Arc::new(DatapointChunkRepository::new(pool.clone()));
+    let indexing_queue_repository = Arc::new(IndexingQueueRepository::new(pool.clone()));
 
     let worlds = Arc::new(Mutex::new(HashMap::new()));
 
@@ -107,6 +110,7 @@ async fn main() -> Result<()> {
         ollama_embeddings_service.clone(),
         tokenizer_path,
         worlds.clone(),
+        indexing_queue_repository.clone(),
     ));
     let dataset_controller = Arc::new(DatasetController::new(
         dataset_repository.clone(),
@@ -122,6 +126,15 @@ async fn main() -> Result<()> {
         dataset_controller.clone(),
         datapoint_controller.clone(),
     ));
+
+    let indexing_worker = IndexingWorker::new(
+        indexing_queue_repository.clone(),
+        datapoint_controller.clone(),
+    );
+
+    tokio::spawn(async move {
+        indexing_worker.start().await;
+    });
 
     let app = Route::new()
         .nest(

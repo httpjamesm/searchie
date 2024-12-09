@@ -32,9 +32,9 @@ pub async fn create_datapoint(
             .datapoint_controller
             .create_datapoint(
                 &payload.dataset_id,
-                &datapoint.data_type,
-                datapoint.name.as_deref(),
-                &datapoint.data.as_bytes().to_vec(),
+                datapoint.data_type.into(),
+                datapoint.data.as_bytes().to_vec(),
+                datapoint.name,
                 datapoint.metadata,
             )
             .await

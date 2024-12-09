@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE indexing_queue SET status = 'processing', started_at = CURRENT_TIMESTAMP WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "c5801e5cc6ebc30a9809b18dcba4725f79fd2229bb17db3dbe146786889ae2ee"
+}

@@ -1,26 +1,24 @@
-use super::DatapointController;
-use crate::{models::datapoint::DataPointType, utils::chunking::chunk_text};
+use std::collections::HashMap;
+
+use crate::models::datapoint::DataPointType;
+use crate::utils::chunking::chunk_text;
 use anyhow::Result;
 use small_world_rs::primitives::vector::Vector;
-use std::collections::HashMap;
+
+use super::DatapointController;
 
 impl DatapointController {
     pub async fn create_datapoint(
         &self,
         dataset_id: &str,
-        data_type: &str,
-        name: Option<&str>,
-        data: &Vec<u8>,
+        data_type: DataPointType,
+        data: Vec<u8>,
+        name: Option<String>,
         metadata: Option<HashMap<String, String>>,
-    ) -> Result<()> {
+    ) -> Result<i64> {
         let datapoint_id = self
             .datapoint_repository
-            .create_datapoint(
-                dataset_id,
-                DataPointType::from_str(data_type).unwrap(),
-                name,
-                data,
-            )
+            .create_datapoint(dataset_id, data_type, name.as_deref(), &data)
             .await?;
 
         if let Some(metadata) = metadata {
@@ -31,8 +29,9 @@ impl DatapointController {
             }
         }
 
-        self.index_datapoint(datapoint_id).await?;
-        Ok(())
+        self.indexing_queue_repository.enqueue(datapoint_id).await?;
+
+        Ok(datapoint_id)
     }
 
     pub async fn index_datapoint(&self, datapoint_id: i64) -> Result<()> {
@@ -54,7 +53,6 @@ impl DatapointController {
 
         for chunk in chunks {
             let chunk_to_index = chunk.clone();
-            // for the chunk being added to the db, if the datapoint has a name, strip the name from the chunk so we don't show it in the search results
             let mut chunk_to_log = chunk.clone();
             if let Some(name) = datapoint.name.as_deref() {
                 chunk_to_log = chunk_to_log.replacen(&format!("{} - ", name), "", 1);
@@ -65,7 +63,6 @@ impl DatapointController {
                 .create(datapoint_id, &chunk_to_log.as_bytes().to_vec())
                 .await?;
 
-            // create embedding
             let embedding = self
                 .embeddings_service
                 .get_text_embedding(&chunk_to_index)
@@ -75,7 +72,6 @@ impl DatapointController {
         }
 
         for (i, chunk_id) in chunk_ids.iter().enumerate() {
-            // insert into world
             match self.worlds.lock().await.get_mut(&datapoint.dataset_id) {
                 Some(world) => {
                     world.insert_vector(*chunk_id as u32, Vector::new_f16(&embeddings_batch[i]))?;
@@ -84,7 +80,6 @@ impl DatapointController {
             }
         }
 
-        // dump the world to disk
         std::fs::write(
             &format!("indices/{}.smallworld", datapoint.dataset_id),
             self.worlds
@@ -97,7 +92,6 @@ impl DatapointController {
         )
         .unwrap();
 
-        // update the datapoint to be indexed
         self.datapoint_repository.set_indexed(datapoint_id).await?;
         Ok(())
     }

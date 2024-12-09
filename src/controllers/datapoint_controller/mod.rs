@@ -3,10 +3,14 @@ use std::{collections::HashMap, sync::Arc};
 use tokenizers::Tokenizer;
 use tokio::sync::Mutex;
 
-use crate::repositories::{
-    datapoint_chunk_repository::DatapointChunkRepository,
-    datapoint_metadata_repository::DatapointMetadataRepository,
-    datapoint_repository::DatapointRepository, services::embeddings::EmbeddingsService,
+use crate::{
+    repositories::{
+        datapoint_chunk_repository::DatapointChunkRepository,
+        datapoint_metadata_repository::DatapointMetadataRepository,
+        datapoint_repository::DatapointRepository,
+        indexing_queue_repository::IndexingQueueRepository,
+    },
+    services::embeddings::EmbeddingsService,
 };
 
 pub mod create_datapoint;
@@ -19,6 +23,7 @@ pub struct DatapointController {
     embeddings_service: Arc<Box<dyn EmbeddingsService>>,
     tokenizer: Arc<Tokenizer>,
     worlds: Arc<Mutex<HashMap<String, World>>>,
+    indexing_queue_repository: Arc<IndexingQueueRepository>,
 }
 
 impl DatapointController {
@@ -29,6 +34,7 @@ impl DatapointController {
         embeddings_service: Arc<Box<dyn EmbeddingsService>>,
         tokenizer_path: &str,
         worlds: Arc<Mutex<HashMap<String, World>>>,
+        indexing_queue_repository: Arc<IndexingQueueRepository>,
     ) -> Self {
         let tokenizer = Arc::new(Tokenizer::from_file(tokenizer_path).unwrap());
         Self {
@@ -38,6 +44,7 @@ impl DatapointController {
             embeddings_service,
             tokenizer,
             worlds,
+            indexing_queue_repository,
         }
     }
 }

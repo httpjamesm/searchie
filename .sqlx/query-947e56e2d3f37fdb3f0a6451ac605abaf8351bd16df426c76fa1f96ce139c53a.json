@@ -1,0 +1,56 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT \n                id,\n                datapoint_id,\n                status as \"status: IndexingStatus\",\n                error,\n                created_at,\n                started_at,\n                completed_at\n            FROM indexing_queue \n            WHERE status = 'pending'\n            ORDER BY created_at ASC \n            LIMIT 1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "datapoint_id",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "status: IndexingStatus",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "error",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 4,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "started_at",
+        "ordinal": 5,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "completed_at",
+        "ordinal": 6,
+        "type_info": "Datetime"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "947e56e2d3f37fdb3f0a6451ac605abaf8351bd16df426c76fa1f96ce139c53a"
+}
