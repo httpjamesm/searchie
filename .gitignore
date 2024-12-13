@@ -5,3 +5,4 @@ indices/
 .DS_Store
 .fastembed/
 .env
+docker-compose.yml

@@ -18,7 +18,13 @@ pub struct OllamaEmbeddingsService {
 impl OllamaEmbeddingsService {
     pub fn new() -> Self {
         Self {
-            client: Ollama::new("http://localhost", 11434),
+            client: Ollama::new(
+                &std::env::var("OLLAMA_HOST").unwrap_or("http://localhost".to_string()),
+                std::env::var("OLLAMA_PORT")
+                    .unwrap_or("11434".to_string())
+                    .parse()
+                    .unwrap(),
+            ),
         }
     }
 }

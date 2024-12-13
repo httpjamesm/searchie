@@ -16,7 +16,11 @@ impl DatasetController {
         let world = World::new(24, 50, 40, DistanceMetric::Cosine(CosineDistance)).unwrap();
         // dump to file
         std::fs::write(
-            &format!("indices/{}.smallworld", dataset_id),
+            &format!(
+                "{}/{}.smallworld",
+                std::env::var("INDICES_DIR").unwrap(),
+                dataset_id
+            ),
             world.dump().unwrap(),
         )
         .unwrap();

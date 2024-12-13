@@ -2,6 +2,7 @@ use anyhow::Result;
 use controllers::{
     datapoint_controller::DatapointController, dataset_controller::DatasetController,
 };
+use dotenv;
 use handlers::{
     datapoint_handler::{create_datapoint::create_datapoint, DatapointHandler},
     dataset_handler::{
@@ -54,22 +55,24 @@ static TEMPLATES: Lazy<Tera> = Lazy::new(|| {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    dotenv::dotenv().ok();
+
     let pool = Arc::new(
         SqlitePoolOptions::new()
-            .connect("sqlite://./searchie.db")
+            .connect(&std::env::var("DATABASE_URL").unwrap())
             .await
             .expect("Failed to connect to database"),
     );
 
-    let listen = "0.0.0.0:3030";
-    let listener = TcpListener::bind(listen);
+    let listen = std::env::var("LISTEN").unwrap_or("0.0.0.0:3030".to_string());
+    let listener = TcpListener::bind(listen.clone());
 
     // services
-    let tokenizer_path = "./tokenizer.json";
+    let tokenizer_path = std::env::var("TOKENIZER_PATH").unwrap_or("./tokenizer.json".to_string());
     let ollama_embeddings_service =
         Arc::new(Box::new(OllamaEmbeddingsService::new()) as Box<dyn EmbeddingsService>);
     let fastembed_reranking_service = Arc::new(Box::new(FastEmbedRerankingService::new(
-        "./.fastembed",
+        &std::env::var("FASTEMBED_DIR").unwrap_or("./.fastembed".to_string()),
     )) as Box<dyn RerankingService>);
 
     // repositories
@@ -85,16 +88,31 @@ async fn main() -> Result<()> {
     let datasets = dataset_repository.list_datasets().await?;
     for dataset in datasets {
         // check `indices` folder if `{dataset.id}.smallworld` exists.
-        if std::path::Path::new(&format!("indices/{}.smallworld", dataset.id)).exists() {
+        if std::path::Path::new(&format!(
+            "{}/{}.smallworld",
+            std::env::var("INDICES_DIR").unwrap(),
+            dataset.id
+        ))
+        .exists()
+        {
             // read from dump
-            let dump_data = std::fs::read(&format!("indices/{}.smallworld", dataset.id)).unwrap();
+            let dump_data = std::fs::read(&format!(
+                "{}/{}.smallworld",
+                std::env::var("INDICES_DIR").unwrap(),
+                dataset.id
+            ))
+            .unwrap();
             let world = World::new_from_dump(&dump_data).unwrap();
             worlds.lock().await.insert(dataset.id, world);
         } else {
             let world = World::new(24, 50, 40, DistanceMetric::Cosine(CosineDistance)).unwrap();
             // dump to file
             std::fs::write(
-                &format!("indices/{}.smallworld", dataset.id),
+                &format!(
+                    "{}/{}.smallworld",
+                    std::env::var("INDICES_DIR").unwrap(),
+                    dataset.id
+                ),
                 world.dump().unwrap(),
             )
             .unwrap();
@@ -108,7 +126,7 @@ async fn main() -> Result<()> {
         datapoint_metadata_repository.clone(),
         datapoint_chunk_repository.clone(),
         ollama_embeddings_service.clone(),
-        tokenizer_path,
+        &tokenizer_path,
         worlds.clone(),
         indexing_queue_repository.clone(),
     ));

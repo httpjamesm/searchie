@@ -1,0 +1,20 @@
+services:
+  searchie:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3030:3030
+    volumes:
+      - ./indices:/indices
+      - ./.fastembed:/fastembed
+      - ./searchie.db:/searchie.db
+      - ./tokenizer.json:/tokenizer.json
+    environment:
+      - INDICES_DIR=/indices
+      - FASTEMBED_DIR=/fastembed
+      - LISTEN=0.0.0.0:3030
+      - DATABASE_URL=sqlite:///searchie.db
+      - TOKENIZER_PATH=/tokenizer.json
+      - OLLAMA_HOST=http://ollama.local
+      - OLLAMA_PORT=11434

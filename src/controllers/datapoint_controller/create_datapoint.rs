@@ -81,7 +81,11 @@ impl DatapointController {
         }
 
         std::fs::write(
-            &format!("indices/{}.smallworld", datapoint.dataset_id),
+            &format!(
+                "{}/{}.smallworld",
+                std::env::var("INDICES_DIR").unwrap(),
+                datapoint.dataset_id
+            ),
             self.worlds
                 .lock()
                 .await
