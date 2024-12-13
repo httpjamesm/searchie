@@ -37,7 +37,7 @@ impl DatasetController {
             .rerank(query, datapoint_chunk_text_strings)
             .await?;
 
-        let datapoint_ids: Vec<i64> = reranked.iter().map(|r| *r as i64).collect();
+        let datapoint_ids: Vec<i64> = datapoint_chunks.iter().map(|r| r.datapoint_id).collect();
         // ensure they're unique
         let datapoint_ids: Vec<i64> = datapoint_ids
             .into_iter()
