@@ -75,6 +75,28 @@ impl DatapointChunk {
     }
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+pub struct DatapointChunkView {
+    pub id: i64,
+    pub datapoint_id: i64,
+    #[serde(serialize_with = "serialize_bytes_to_string")]
+    pub data: Vec<u8>,
+    pub created_at: String,
+    pub datapoint: Datapoint,
+}
+
+impl From<(DatapointChunk, Datapoint)> for DatapointChunkView {
+    fn from((chunk, datapoint): (DatapointChunk, Datapoint)) -> Self {
+        Self {
+            id: chunk.id,
+            datapoint_id: chunk.datapoint_id,
+            data: chunk.data,
+            created_at: chunk.created_at.format("%Y-%m-%d %H:%M:%S").to_string(),
+            datapoint,
+        }
+    }
+}
+
 fn serialize_bytes_to_string<S>(bytes: &Vec<u8>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,

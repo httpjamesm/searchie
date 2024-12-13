@@ -1,4 +1,6 @@
-use crate::{handlers::dataset_handler::DatasetHandler, TEMPLATES};
+use crate::{
+    handlers::dataset_handler::DatasetHandler, models::datapoint::DatapointChunkView, TEMPLATES,
+};
 use poem::{
     handler,
     web::{Data, Html, Path, Query},
@@ -36,7 +38,16 @@ pub async fn search_page(
                 Error::from_string(e.to_string(), poem::http::StatusCode::INTERNAL_SERVER_ERROR)
             })?;
         let elapsed = start.elapsed().as_millis();
-        context.insert("results", &datapoints);
+        let mut results: Vec<DatapointChunkView> = Vec::new();
+        let (chunks, datapoints) = datapoints;
+        for chunk in chunks {
+            let datapoint = datapoints
+                .iter()
+                .find(|dp| dp.id == chunk.datapoint_id)
+                .unwrap();
+            results.push(DatapointChunkView::from((chunk, datapoint.clone())));
+        }
+        context.insert("results", &results);
         context.insert("query", &search_query);
         context.insert("search_duration", &elapsed);
     }
