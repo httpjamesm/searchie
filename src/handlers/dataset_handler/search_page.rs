@@ -32,7 +32,7 @@ pub async fn search_page(
         let start = Instant::now();
         let datapoints = dataset_handler
             .dataset_controller
-            .search_dataset(&dataset_id, &search_query)
+            .search_dataset(&dataset_id, &search_query, 10)
             .await
             .map_err(|e| {
                 Error::from_string(e.to_string(), poem::http::StatusCode::INTERNAL_SERVER_ERROR)

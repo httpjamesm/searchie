@@ -8,6 +8,7 @@ impl DatasetController {
         &self,
         dataset_id: &str,
         query: &str,
+        limit: usize,
     ) -> Result<(Vec<DatapointChunk>, Vec<Datapoint>)> {
         let dataset = self.dataset_repository.get_dataset(dataset_id).await?;
 
@@ -19,7 +20,7 @@ impl DatasetController {
         let query_embedding = self.embeddings_service.get_text_embedding(query).await?;
 
         // search world
-        let results = world.search(&Vector::new_f16(&query_embedding), 10, 20)?;
+        let results = world.search(&Vector::new_f16(&query_embedding), limit, 20)?;
 
         // for every id, get the data point chunk from db
         let datapoint_chunks = self
