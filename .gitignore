@@ -4,3 +4,4 @@ tokenizer.json
 indices/
 .DS_Store
 .fastembed/
+.env

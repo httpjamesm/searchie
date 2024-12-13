@@ -1,6 +1,7 @@
 use crate::{
     repositories::{
-        datapoint_chunk_repository::DatapointChunkRepository, dataset_repository::DatasetRepository,
+        datapoint_chunk_repository::DatapointChunkRepository,
+        datapoint_repository::DatapointRepository, dataset_repository::DatasetRepository,
     },
     services::{embeddings::EmbeddingsService, reranking::RerankingService},
 };
@@ -19,6 +20,7 @@ pub struct DatasetController {
     embeddings_service: Arc<Box<dyn EmbeddingsService>>,
     datapoint_chunk_repository: Arc<DatapointChunkRepository>,
     reranking_service: Arc<Box<dyn RerankingService>>,
+    datapoint_repository: Arc<DatapointRepository>,
 }
 
 impl DatasetController {
@@ -28,6 +30,7 @@ impl DatasetController {
         embeddings_service: Arc<Box<dyn EmbeddingsService>>,
         datapoint_chunk_repository: Arc<DatapointChunkRepository>,
         reranking_service: Arc<Box<dyn RerankingService>>,
+        datapoint_repository: Arc<DatapointRepository>,
     ) -> Self {
         Self {
             dataset_repository,
@@ -35,6 +38,7 @@ impl DatasetController {
             embeddings_service,
             datapoint_chunk_repository,
             reranking_service,
+            datapoint_repository,
         }
     }
 }

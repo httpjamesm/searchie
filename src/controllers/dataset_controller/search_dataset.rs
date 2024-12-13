@@ -1,5 +1,5 @@
 use super::DatasetController;
-use crate::models::datapoint::DatapointChunkWithDatapoint;
+use crate::models::datapoint::{Datapoint, DatapointChunk};
 use anyhow::Result;
 use small_world_rs::primitives::vector::Vector;
 
@@ -8,7 +8,7 @@ impl DatasetController {
         &self,
         dataset_id: &str,
         query: &str,
-    ) -> Result<Vec<DatapointChunkWithDatapoint>> {
+    ) -> Result<(Vec<DatapointChunk>, Vec<Datapoint>)> {
         let dataset = self.dataset_repository.get_dataset(dataset_id).await?;
 
         // get world
@@ -37,9 +37,25 @@ impl DatasetController {
             .rerank(query, datapoint_chunk_text_strings)
             .await?;
 
-        Ok(reranked
-            .iter()
-            .map(|r| datapoint_chunks[*r].clone())
-            .collect())
+        let datapoint_ids: Vec<i64> = reranked.iter().map(|r| *r as i64).collect();
+        // ensure they're unique
+        let datapoint_ids: Vec<i64> = datapoint_ids
+            .into_iter()
+            .collect::<std::collections::HashSet<_>>()
+            .into_iter()
+            .collect();
+
+        let datapoints = self
+            .datapoint_repository
+            .get_datapoints_by_ids(datapoint_ids)
+            .await?;
+
+        Ok((
+            reranked
+                .iter()
+                .map(|r| datapoint_chunks[*r].clone())
+                .collect(),
+            datapoints,
+        ))
     }
 }

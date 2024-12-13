@@ -118,6 +118,7 @@ async fn main() -> Result<()> {
         ollama_embeddings_service.clone(),
         datapoint_chunk_repository.clone(),
         fastembed_reranking_service.clone(),
+        datapoint_repository.clone(),
     ));
 
     // handlers

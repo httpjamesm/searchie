@@ -5,6 +5,7 @@ use poem::{
     web::{Data, Json, Path, Query},
     IntoResponse, Response,
 };
+use serde_json::json;
 use std::{collections::HashMap, sync::Arc};
 
 #[handler]
@@ -18,7 +19,13 @@ pub async fn search_dataset(
         .search_dataset(&dataset_id, &params.get("q").unwrap())
         .await
     {
-        Ok(datapoints) => Json(datapoints).into_response(),
+        Ok(datapoints) => {
+            let response = serde_json::json!({
+                "datapoints": datapoints.0,
+                "chunk_results": datapoints.1
+            });
+            Json(response).into_response()
+        }
         Err(e) => Response::builder()
             .status(StatusCode::INTERNAL_SERVER_ERROR)
             .body(e.to_string()),
